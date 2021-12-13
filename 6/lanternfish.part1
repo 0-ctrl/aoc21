@@ -1,0 +1,82 @@
+package main
+
+import (
+	"fmt"
+	"log"
+	"strconv"
+	"strings"
+
+	"github.com/0-ctrl/aoc21/parsing"
+)
+
+type Pool struct {
+	lanternfish []*Lanternfish
+}
+
+func (p *Pool) Days(days int) {
+	for i := 0; i < days; i++ {
+		p.Day()
+	}
+}
+
+func (p *Pool) Day() {
+	for _, fish := range p.lanternfish {
+		if fish.timer == 0 {
+			newLanternfish := Lanternfish{8}
+			p.Add(newLanternfish)
+			fish.Spawn()
+		} else {
+			fish.timer--
+		}
+	}
+}
+
+func (p *Pool) Add(newLanternfish Lanternfish) {
+	p.lanternfish = append(p.lanternfish, &newLanternfish)
+}
+
+func (p *Pool) Print() string {
+	text := ""
+	for _, fish := range p.lanternfish {
+		text += fmt.Sprintf("%s,", fish)
+	}
+
+	return text
+}
+
+func CreateLanternFish(timerStr string) Lanternfish {
+	timer, err := strconv.Atoi(timerStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return Lanternfish{timer}
+}
+
+type Lanternfish struct {
+	timer int
+}
+
+func (l *Lanternfish) String() string {
+	return strconv.Itoa(l.timer)
+}
+
+func (l *Lanternfish) Spawn() {
+	l.timer = 6
+}
+
+func main() {
+	input, err := parsing.ReadInput("testinput")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fishPool := Pool{}
+
+	for _, fish := range strings.Split(input, ",") {
+		fishPool.Add(CreateLanternFish(fish))
+	}
+
+	fishPool.Days(80)
+	fmt.Println(len(fishPool.lanternfish))
+
+}
